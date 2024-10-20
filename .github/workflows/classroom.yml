@@ -1,0 +1,29 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: my_chmod test
+      id: my_chmod-test
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: my_chmod test
+        setup-command: ''
+        command: make test_github
+        timeout: 1
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        MY_CHMOD-TEST_RESULTS: "${{steps.my_chmod-test.outputs.result}}"
+      with:
+        runners: my_chmod-test
